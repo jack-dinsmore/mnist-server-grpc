@@ -41,7 +41,7 @@ def run():
     # Pass the data to the server and receive a prediction
     print("Submitting image and waiting")
     start_time=time.time()
-    response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, num_images=1, client_id = client_id))
+    response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, num_images=1, client_id=client_id))
 
     # Find the most likely prediction and print it
     original_array = np.frombuffer(response.prediction).reshape(1, 10)
