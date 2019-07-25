@@ -60,12 +60,12 @@ class Model(object):
         net = tf.layers.dense(net, NUM_CLASSES, activation=None, name='fc1')
         return net
     
-def model_fn(self, features, labels, mode, params):
+def model_fn(features, labels, mode, params):
     del params# Unused
     image = features
     if isinstance(image, dict):
         image = features["image"]
-        
+
     model = Model()
     image = tf.reshape(features, [-1, IMG_EDGE, IMG_EDGE, 1])
 
@@ -125,7 +125,7 @@ def get_predictions(data):
     evaluate_steps = train_data.shape[0] // BATCH_SIZE
     train_steps = NUM_EPOCHS * evaluate_steps
     try:
-        self.estimator.train(input_fn=train_input_fn, steps=train_steps)
+        estimator.train(input_fn=train_input_fn, steps=train_steps)
     except tf.errors.OutOfRangeError:
         pass
         
@@ -135,7 +135,7 @@ def get_predictions(data):
         dataset_predict = tf.data.Dataset.from_tensor_slices(data)
         return dataset_predict.apply(tf.contrib.data.batch_and_drop_remainder(batch_size))
         
-    predictions = self.estimator.predict(predict_input_fn)
+    predictions = estimator.predict(predict_input_fn)
     
     labels = []
     for pred_dict in predictions:
