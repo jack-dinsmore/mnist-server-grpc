@@ -1,4 +1,4 @@
-import logging, grpc
+import logging, grpc, time
 
 import numpy as np
 
@@ -23,7 +23,7 @@ def run():
     except:
         print("Connection to the server could not be established. Press enter to try again.")
         return
-    client_id = response.id
+    client_id = response.new_id
 
     # Load the image from image.bmp
     image = open('image.bmp', 'rb')
@@ -39,12 +39,17 @@ def run():
 
     # Pass the data to the server and receive a prediction
     print("Submitting image and waiting")
+    start_time=time.time()
     response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, num_images=1, client_id = client_id))
 
     # Find the most likely prediction and print it
     original_array = np.frombuffer(response.prediction).reshape(1, 10)
+    whole_time = time.time() - start_time
     result = list(original_array[0])
     print("Prediction is:", result.index(max(result)))
+    print("Total time:", whole_time)
+    print("Predict time:", response.infer_time)
+    print("Fraction of time spent not predicting:", (1 - response.infer_time / whole_time) * 100, '%')
     channel.close()
 
 

@@ -1,5 +1,3 @@
 Volume testing
 
-Sometimes the no wait client hangs infinitely. Why?
-
 Ultimately, TPUs.

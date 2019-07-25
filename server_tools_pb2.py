@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='helloworld',
   syntax='proto3',
   serialized_options=_b('\n\033io.grpc.examples.helloworldB\017HelloWorldProtoP\001\242\002\003HLW'),
-  serialized_pb=_b('\n\x12server-tools.proto\x12\nhelloworld\"\x0b\n\tNullParam\"D\n\x0b\x44\x61taMessage\x12\x11\n\tclient_id\x18\x01 \x01(\t\x12\x0e\n\x06images\x18\x02 \x01(\x0c\x12\x12\n\nnum_images\x18\x03 \x01(\x05\"V\n\x11PredictionMessage\x12\x10\n\x08\x63omplete\x18\x01 \x01(\x08\x12\x12\n\nprediction\x18\x02 \x01(\x0c\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x12\x0c\n\x04time\x18\x04 \x01(\x02\"&\n\tIDMessage\x12\n\n\x02id\x18\x01 \x01(\t\x12\r\n\x05\x65rror\x18\x02 \x01(\t2\xa2\x02\n\x0bMnistServer\x12H\n\x0cStartJobWait\x12\x17.helloworld.DataMessage\x1a\x1d.helloworld.PredictionMessage\"\x00\x12\x42\n\x0eStartJobNoWait\x12\x17.helloworld.DataMessage\x1a\x15.helloworld.IDMessage\"\x00\x12\x42\n\x08ProbeJob\x12\x15.helloworld.IDMessage\x1a\x1d.helloworld.PredictionMessage\"\x00\x12\x41\n\x0fRequestClientID\x12\x15.helloworld.NullParam\x1a\x15.helloworld.IDMessage\"\x00\x42\x36\n\x1bio.grpc.examples.helloworldB\x0fHelloWorldProtoP\x01\xa2\x02\x03HLWb\x06proto3')
+  serialized_pb=_b('\n\x12server-tools.proto\x12\nhelloworld\"\x0b\n\tNullParam\"D\n\x0b\x44\x61taMessage\x12\x11\n\tclient_id\x18\x01 \x01(\t\x12\x0e\n\x06images\x18\x02 \x01(\x0c\x12\x12\n\nnum_images\x18\x03 \x01(\x05\"\\\n\x11PredictionMessage\x12\x10\n\x08\x63omplete\x18\x01 \x01(\x08\x12\x12\n\nprediction\x18\x02 \x01(\x0c\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x12\x12\n\ninfer_time\x18\x04 \x01(\x02\"*\n\tIDMessage\x12\x0e\n\x06new_id\x18\x01 \x01(\t\x12\r\n\x05\x65rror\x18\x02 \x01(\t2\xa2\x02\n\x0bMnistServer\x12H\n\x0cStartJobWait\x12\x17.helloworld.DataMessage\x1a\x1d.helloworld.PredictionMessage\"\x00\x12\x42\n\x0eStartJobNoWait\x12\x17.helloworld.DataMessage\x1a\x15.helloworld.IDMessage\"\x00\x12\x42\n\x08ProbeJob\x12\x15.helloworld.IDMessage\x1a\x1d.helloworld.PredictionMessage\"\x00\x12\x41\n\x0fRequestClientID\x12\x15.helloworld.NullParam\x1a\x15.helloworld.IDMessage\"\x00\x42\x36\n\x1bio.grpc.examples.helloworldB\x0fHelloWorldProtoP\x01\xa2\x02\x03HLWb\x06proto3')
 )
 
 
@@ -124,7 +124,7 @@ _PREDICTIONMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='time', full_name='helloworld.PredictionMessage.time', index=3,
+      name='infer_time', full_name='helloworld.PredictionMessage.infer_time', index=3,
       number=4, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
@@ -143,7 +143,7 @@ _PREDICTIONMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=117,
-  serialized_end=203,
+  serialized_end=209,
 )
 
 
@@ -155,7 +155,7 @@ _IDMESSAGE = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='helloworld.IDMessage.id', index=0,
+      name='new_id', full_name='helloworld.IDMessage.new_id', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -180,8 +180,8 @@ _IDMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=205,
-  serialized_end=243,
+  serialized_start=211,
+  serialized_end=253,
 )
 
 DESCRIPTOR.message_types_by_name['NullParam'] = _NULLPARAM
@@ -227,8 +227,8 @@ _MNISTSERVER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=246,
-  serialized_end=536,
+  serialized_start=256,
+  serialized_end=546,
   methods=[
   _descriptor.MethodDescriptor(
     name='StartJobWait',

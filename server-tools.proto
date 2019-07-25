@@ -41,10 +41,10 @@ message PredictionMessage {
   bool complete = 1;
   bytes prediction = 2;
   string error = 3;
-  float time = 4;
+  float infer_time = 4;
 }
 
 message IDMessage {
-  string id = 1;
+  string new_id = 1;
   string error = 2;
 }

@@ -16,9 +16,10 @@ Specifically, this code will launch a gRPC server encoded in *server.py* on a Go
 
 # Description of clients
 **Please make sure to copy and paste the correct IP of the server into the file *IP.txt* in order for the client programs to work**
-- *client-big.py*: this client sends an arbitrary amount of data to the server and gets back a numpy array of predictions. You can specify whether the program should halt execution until it receives the predictions or continue execution, periodically checking in with the server to see if the predictions have been produced by changing the `WAIT` flag in the code
 - *client-wait.py*: this client sends the information encoded in *image.bmp* to the server and asks it to produce a prediction. It halts execution until it receives an answer.
 - *client-no-wait.py*: this client sends the information encoded in *image.bmp* to the server and asks it to produce a prediction. It does not halt execution after sending the data; instead it periodically checks in with the server to see if the prediction has been generated. This comes with a performance loss; time is wasted by asking the server whether the image has been processed yet.
+- *client-big.py*: this client sends an arbitrary amount of data to the server and gets back a numpy array of predictions. You can specify whether the program should halt execution until it receives the predictions or continue execution, periodically checking in with the server to see if the predictions have been produced by changing the `WAIT` flag in the code
+- *client-get-latency.py*: this client measures what fraction of time it takes to process data on the server is spent actually predicting. Ideally it would be zero every time, but it isn't. Some of the major causes of the latency are transmition time, time to convert the data and predictions from bytes to a numpy array, and time to set up threads on the server. We measure this fraction as a function of the number of images sent and whether the client waits for a response or continually checks in with the server to see if the prediction is done. 
 
 
 # How to deploy the server

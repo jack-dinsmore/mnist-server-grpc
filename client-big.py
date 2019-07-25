@@ -1,5 +1,4 @@
-import logging, grpc, time, sys
-
+import logging, grpc, time
 import numpy as np
 
 import server_tools_pb2
@@ -17,9 +16,9 @@ f.close()
 WAIT = False
 
 # Change this parameter depending on how many images you want to send at once.
-# There is an upper limit where the size of the package becomes too great and
-# the client will throw an error
-NUM_IMAGES = 250
+# There is an upper limit (668 on my machine) where the size of the package 
+# becomes too great and the client will throw an error.
+NUM_IMAGES = 668
 
 def run():
     # Get a handle to the server
@@ -32,7 +31,7 @@ def run():
     except:
         print("Connection to the server could not be established. Press enter to try again.")
         return
-    client_id = response.id
+    client_id = response.new_id
 
     # Generate lots of data
     data = np.random.rand(NUM_IMAGES, 28, 28, 1)
@@ -45,11 +44,14 @@ def run():
         response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, num_images=NUM_IMAGES, client_id=client_id))
     else:
         print("Submitting images")
-        idPackage = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, num_images=NUM_IMAGES, client_id=client_id))
+        try:
+            idPackage = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, num_images=NUM_IMAGES, client_id=client_id))
+        except:
+            print("NUM_IMAGES is too high")
+            return
         response = stub.ProbeJob(idPackage)
         print("Waiting")
         while not response.complete:
-            time.sleep(0.1)
             response = stub.ProbeJob(idPackage)
             if response.error != '':
                 print(response.error)
@@ -59,8 +61,8 @@ def run():
     original_array = np.frombuffer(response.prediction).reshape(NUM_IMAGES, 10)
     whole_time = time.time() - start_time
     print("Total time:", whole_time)
-    print("Predict time:", response.time)
-    print("Fraction of time spent not predicting:", (1 - response.time / whole_time) * 100, '%')
+    print("Predict time:", response.infer_time)
+    print("Fraction of time spent not predicting:", (1 - response.infer_time / whole_time) * 100, '%')
     channel.close()
 
 

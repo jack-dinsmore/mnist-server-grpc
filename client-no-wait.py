@@ -1,4 +1,4 @@
-import logging, grpc
+import logging, grpc, time
 
 import numpy as np
 
@@ -23,7 +23,7 @@ def run():
     except:
         print("Connection to the server could not be established. Press enter to try again.")
         return
-    client_id = response.id
+    client_id = response.new_id
 
     # Load the image from image.bmp
     image = open('image.bmp', 'rb')
@@ -39,27 +39,31 @@ def run():
 
     #Pass the data to the server
     print("Submitting image")
-    idPackage = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, num_images=1, client_id = client_id))
-    response = stub.ProbeJob(idPackage)
+    start_time=time.time()
+    id_package = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, num_images=1, client_id = client_id))
+    response = stub.ProbeJob(id_package)
 
     # Wait for the server to finish prediction
     print("Waiting")
     while not response.complete:
-        response = stub.ProbeJob(idPackage)
+        response = stub.ProbeJob(id_package)
         if response.error != '':
-            print(response.error)
             break
         
     # Find the most likely prediction and print it
     original_array = np.frombuffer(response.prediction).reshape(1, 10)
+    whole_time = time.time() - start_time
     result = list(original_array[0])
     print("Prediction is:", result.index(max(result)))
+    print("Total time:", whole_time)
+    print("Predict time:", response.infer_time)
+    print("Fraction of time spent not predicting:", (1 - response.infer_time / whole_time) * 100, '%')
     channel.close()
 
 
 if __name__ == '__main__':
     logging.basicConfig()
     # Repeat so that you can change the image
-    while input('Change image.bmp if you like') == '':
+    while input('\nChange image.bmp if you like') == '':
         run()
     input()

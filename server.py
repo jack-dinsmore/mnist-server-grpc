@@ -16,7 +16,7 @@ from concurrent import futures
 import logging, grpc, time
 import numpy as np
 import ml_functions as ml
-import multiprocessing as mp
+import threading
 
 import server_tools_pb2
 import server_tools_pb2_grpc
@@ -24,83 +24,66 @@ import server_tools_pb2_grpc
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 PORT='50051'
 
-global processes, max_id, manager, results, max_client_ids, max_client_id, new_client_permitted, times
+global processes, max_id, results, max_client_ids, max_client_id, new_client_permitted, times
 processes = {}
 max_client_ids = {}
 max_client_id = 0
 max_id = 0
 new_client_permitted = True
-
-# Data accessible to threads and the main program
-initialized = False
-manager = None
-results = None
-times = None
-
-def initialize():
-    global manager, results, times, initialized
-    if not initialized:
-        manager = mp.Manager()
-        results = manager.dict()
-        times = manager.dict()
-        initialized = True
+results = {}
+times = {}
 
 
 class MnistServer(server_tools_pb2_grpc.MnistServerServicer):
 
     def StartJobWait(self, request, context):
-        initialize()
         data = np.frombuffer(request.images)
         data = data.reshape(request.num_images, 28, 28, 1)
         prediction, predict_time = ml.predict(data)
-        return server_tools_pb2.PredictionMessage(complete=True, prediction=prediction.tostring(), error='', time=predict_time)
+        return server_tools_pb2.PredictionMessage(complete=True, prediction=prediction.tostring(), error='', infer_time=predict_time)
 
     def RequestClientID(self, request, context):
-        initialize()
         global max_client_id, new_client_permitted, max_client_ids
         while not new_client_permitted:
             pass
 
         new_client_permitted = False
-        id = str(max_client_id)
+        client_id = str(max_client_id)
         max_client_id += 1
         new_client_permitted = True
 
-        max_client_ids[id] = 0
-        return server_tools_pb2.IDMessage(id=id, error = '')
+        max_client_ids[client_id] = 0
+        return server_tools_pb2.IDMessage(new_id=client_id, error = '')
 
     def StartJobNoWait(self, request, context):
         global processes, results, max_client_ids
-        initialize()
         if request.client_id not in max_client_ids:
-            return server_tools_pb2.IDMessage(id=None, error = "The ID "+str(request.client_id)+" is not a valid client ID")
+            return server_tools_pb2.IDMessage(new_id=None, error = "The ID "+str(request.client_id)+" is not a valid client ID")
         
         data = np.frombuffer(request.images)
         data = data.reshape(request.num_images, 28, 28, 1)
 
-        id = request.client_id + '-' + str(max_client_ids[request.client_id])
+        job_id = request.client_id + '-' + str(max_client_ids[request.client_id])
         max_client_ids[request.client_id] += 1
 
-        results[id] = None
-        processes[id] = mp.Process(target=ml.predict, args=(data, results, times, id))
-        processes[id].start()
-        return server_tools_pb2.IDMessage(id=id, error='')
+        results[job_id] = None
+        processes[job_id] = threading.Thread(target=ml.predict, args=(data, results, times, job_id))
+        processes[job_id].start()
+        return server_tools_pb2.IDMessage(new_id=job_id, error='')
     
     def ProbeJob(self, request, context):
         global processes, results
-        initialize()
-        if request.id not in processes:
+        if request.new_id not in processes:
             return server_tools_pb2.PredictionMessage(complete=False, prediction=None, 
-                error = "The ID "+str(request.id)+" is not a valid job ID")
-        if results[request.id] is None:
-            a = results[request.id]
+                error = "The ID "+str(request.new_id)+" is not a valid job ID")
+        if results[request.new_id] is None:
+            a = results[request.new_id]
             return server_tools_pb2.PredictionMessage(complete=False, prediction=None)
         else:
-            prediction = results[request.id].tostring()
-            # Am I supposed to join the process to prevent memory leaks or something?
-            del processes[request.id]
-            del results[request.id]
-            return server_tools_pb2.PredictionMessage(complete=True, prediction=prediction, error='', time=times[request.id])
+            prediction = results[request.new_id].tostring()
+            del processes[request.new_id]
+            del results[request.new_id]
+            return server_tools_pb2.PredictionMessage(complete=True, prediction=prediction, error='', infer_time=times[request.new_id])
 
 
 def serve():
