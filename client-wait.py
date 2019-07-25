@@ -11,6 +11,7 @@ IP = f.read()
 if IP[-1] == '\n':
     IP = IP[:-1]
 f.close()
+print(IP)
 
 def run():
     # Get a handle to the server
