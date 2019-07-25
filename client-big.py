@@ -50,7 +50,7 @@ def run():
             print("NUM_IMAGES is too high")
             return
         response = stub.ProbeJob(idPackage)
-        print("Waiting")
+        print("Checking in with server")
         while not response.complete:
             response = stub.ProbeJob(idPackage)
             if response.error != '':

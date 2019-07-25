@@ -16,6 +16,7 @@ Specifically, this code will launch a gRPC server encoded in *server.py* on a Go
 
 # Description of clients
 **Please make sure to copy and paste the correct IP of the server into the file *IP.txt* in order for the client programs to work**
+- *IP.txt*: this file contains the IP address of the server. If you're running the server on your local computer with `python server.py`, then *IP.txt* should contain "localhost" or "127.0.0.1". Otherwise, copy and paste the endpoint of your GKE server into *IP.txt* so your client programs know what server to communicate with.
 - *client-wait.py*: this client sends the information encoded in *image.bmp* to the server and asks it to produce a prediction. It halts execution until it receives an answer.
 - *client-no-wait.py*: this client sends the information encoded in *image.bmp* to the server and asks it to produce a prediction. It does not halt execution after sending the data; instead it periodically checks in with the server to see if the prediction has been generated. This comes with a performance loss; time is wasted by asking the server whether the image has been processed yet.
 - *client-big.py*: this client sends an arbitrary amount of data to the server and gets back a numpy array of predictions. You can specify whether the program should halt execution until it receives the predictions or continue execution, periodically checking in with the server to see if the predictions have been produced by changing the `WAIT` flag in the code
@@ -27,11 +28,13 @@ Specifically, this code will launch a gRPC server encoded in *server.py* on a Go
 1. Create a Google Cloud Kubernetes Cluster
     1. Open the menu in the upper left corner of the Google Cloud console and select **Kubernetes Engine>Clusters**. Then select **Create Cluster**. 
     2. Name the cluster whatever you want and change the region if you wish.
-    3. Configure it with as many CPUs as you want. To add GPUs, click **Customize** in the box with the heading **default pool** and change the settings there.
+    3. Configure it with as many CPUs as you want. To add GPUs, click **Customize** in the box with the heading **default pool** and change the settings there. If you are using the zone us-central1-a, select **NVIDIA Tesla V100** as your GPU type; K80s are not offered in this zone.
     5. Click **create**.
+    6. If cluster creation fails and throws a lack of resources error, it is likely that the GPU type you selected is not offered in the region you specified.
 2. Containerize this repository with docker
-    1. Make any changes to the repository you wish to make.
-    2. Run the shell command `gcloud builds submit --tag gcr.io/harrisgroup-223921/<<<NAME>>> .` where `<<<NAME>>>` is a name you pick for the container. This does not have to be the same name as the cluster that you created in the last step.
+    1. Clone this repository into your local computer or your google cloud filesystem.
+    2. Make any changes to the server or docker files you wish to make. If you do change the files, please read the following section on how to avoid errors as you change the server code.
+    3. Run the shell command `gcloud builds submit --tag gcr.io/harrisgroup-223921/<<<NAME>>> .` where `<<<NAME>>>` is a name you pick for the container. This does not have to be the same name as the cluster that you created in the last step.
 3. Deploy the server
     1. Click on the cluster you created in the first step. In the ribbon at the top, click **+ DEPLOY**. Keep **Existing Container Image** selected and click **SELECT** to the right of the box beneath. From the menu that pops up, select the container you created in step two; it should show up as `<<<NAME>>>`.
     2. Click Continue.
@@ -41,7 +44,7 @@ Specifically, this code will launch a gRPC server encoded in *server.py* on a Go
 4. Expose the server (Also called deploying the service)
     1. Click **Expose** in one of the messages that appears at the top of your deployment if it succeeds. If the message is not there, click **ACTIONS** in the ribbon at the top and select **Expose**.
     2. Choose a port of **50051** and click **EXPOSE**
-    3. Copy the IP listed in the **External Endpoints** field if your exposure succeeds.
+    3. Copy the IP listed in the **External Endpoints** field and confirm that the port listed after the IP is 50051. If it is not, redo steps 3 and 4 with a new deployment name.
 5. Run whatever client programs you want
 6. Clean up
     1. Delete the cluster.

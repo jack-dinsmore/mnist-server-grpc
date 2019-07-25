@@ -44,7 +44,7 @@ def run():
     response = stub.ProbeJob(id_package)
 
     # Wait for the server to finish prediction
-    print("Waiting")
+    print("Checking in with server")
     while not response.complete:
         response = stub.ProbeJob(id_package)
         if response.error != '':
@@ -66,4 +66,3 @@ if __name__ == '__main__':
     # Repeat so that you can change the image
     while input('\nChange image.bmp if you like') == '':
         run()
-    input()

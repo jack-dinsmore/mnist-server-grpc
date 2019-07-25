@@ -58,4 +58,3 @@ if __name__ == '__main__':
     # Repeat so that you can change the image
     while input('Change image.bmp if you like') == '':
         run()
-    input()
