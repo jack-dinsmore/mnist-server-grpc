@@ -59,7 +59,7 @@ class MnistServer(server_tools_pb2_grpc.MnistServerServicer):
         global processes, results, max_client_ids
         if request.client_id not in max_client_ids:
             return server_tools_pb2.IDMessage(new_id=None, error = "The ID "+str(request.client_id)+" is not a valid client ID")
-        
+
         data = np.frombuffer(request.images)
         data = data.reshape(request.num_images, 28, 28, 1)
 
@@ -70,7 +70,7 @@ class MnistServer(server_tools_pb2_grpc.MnistServerServicer):
         processes[job_id] = threading.Thread(target=ml.predict, args=(data, results, times, job_id))
         processes[job_id].start()
         return server_tools_pb2.IDMessage(new_id=job_id, error='')
-    
+
     def ProbeJob(self, request, context):
         global processes, results
         if request.new_id not in processes:
@@ -80,7 +80,7 @@ class MnistServer(server_tools_pb2_grpc.MnistServerServicer):
             a = results[request.new_id]
             return server_tools_pb2.PredictionMessage(complete=False, prediction=None)
         else:
-            prediction = results[request.new_id].tostring()
+            prediction = results[request.new_id].astype('double').tostring()
             del processes[request.new_id]
             del results[request.new_id]
             return server_tools_pb2.PredictionMessage(complete=True, prediction=prediction, error='', infer_time=times[request.new_id])
@@ -91,6 +91,7 @@ def serve():
     server_tools_pb2_grpc.add_MnistServerServicer_to_server(MnistServer(), server)
     server.add_insecure_port('[::]:'+PORT)
     server.start()
+    print("READY")
     try:
         while True:
             time.sleep(_ONE_DAY_IN_SECONDS)

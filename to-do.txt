@@ -1,7 +1,5 @@
 Volume testing
 
-TPUs:
-	Having certification issues. I need to be able to access the TPUs. How do I do that from my local machine or from a VM? Do I have to do it from the GKE? 
-	For the VM, I'm using my TPU vm with a conda environment called env. But it's having trouble finding something called google.appengine and oauth2client may be too updated (it's depreciated). Is the google SDK not installed / not properly installed?
+Ultimately, TPUs.
 
-	Eventually, I need to save the trained estimator as a checkpoint, probably in a bucket, and simply load the bucket into the server.
+RIGHT NOW, THE CHECKPOINT IN THE CLOUD IS BAD!
