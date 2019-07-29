@@ -68,5 +68,5 @@ Deployment errors are listed at the top of the deployment page
 - **Insufficient cpu**: another placeholder error. This error often accompanies **Unschedulable**, and once again, the problem often has nothing to do with the amount of processing power available.
 
 ### Pod errors
-Pod errors are listed next to the pod name on the deployment page.
-- **CrashLoopBackOff**: this error occurs in pods when the server cannot be initialized. To read the error, click on one of the pods which shows the **CrashLoopBackOff** error, go to the **Logs** page, and click on **Container Logs**. The traceback should be there.
+Pod errors are listed next to the pod name on the deployment page. Some errors can be cleared simply by refreshing the deployment page.
+- **CrashLoopBackOff**: this error occurs in pods when the server cannot be initialized. To read the error, click on one of the pods which shows the **CrashLoopBackOff** error, go to the **Logs** page, and click on **Container Logs**. The traceback should be there. If not, the issue is probably in the *Dockerfile* which you used to compile your container image; one of the commands may be misspelled or it may throw an error when executed. In my experience, the logs only show python errors generated when running the server, not bash errors generated when downloading the image.

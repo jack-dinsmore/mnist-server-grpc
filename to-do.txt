@@ -3,3 +3,5 @@ Volume testing
 Ultimately, TPUs.
 
 RIGHT NOW, THE CHECKPOINT IN THE CLOUD IS BAD!
+
+Make sure you PULL FROM THE GITHUB before you start working on the TPU VM server files. They are out of date.
