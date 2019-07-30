@@ -78,7 +78,7 @@ if __name__ == '__main__':
             break
         plt.scatter(image_number, wait_fraction, c='r', marker='o', alpha=0.5)
         plt.scatter(image_number, no_wait_fraction, c='b', marker='s', alpha=0.5)
-        plt.legend(['Wait', 'No wait'])
+        plt.legend(['Wait for server to respond', 'Periodically check in with server'])
         plt.xlabel('Images sent')
         plt.xscale('log')
         plt.axis([1, 100, 0, float(i)])
@@ -91,7 +91,7 @@ if __name__ == '__main__':
             break
         plt.scatter(image_number, wait_whole_times, c='r', marker='o', alpha=0.5)
         plt.scatter(image_number, no_wait_whole_times, c='b', marker='s', alpha=0.5)
-        plt.legend(['Wait', 'No wait'])
+        plt.legend(['Wait for server to respond', 'Periodically check in with server'])
         plt.xlabel('Images sent')
         plt.xscale('log')
         plt.axis([1, 100, 0, float(i)])
