@@ -144,7 +144,7 @@ def predict(data, results=None, times=None, job_id=None):
     labels = []
     for pred_dict in predictions:
         labels.append(pred_dict['probabilities'])
-    labels = np.array(labels).astype('float32')
+    labels = np.array(labels).astype('float64')
     tf.reset_default_graph()
 
     predict_time = time.time() - start_time
