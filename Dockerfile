@@ -13,6 +13,8 @@ COPY . .
 RUN pip install grpcio
 RUN pip install tensorflow
 RUN pip install keras
+RUN pip install --upgrade google-api-python-client 
+RUN pip install --upgrade oauth2client
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.

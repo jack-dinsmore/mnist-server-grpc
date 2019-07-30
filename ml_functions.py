@@ -25,7 +25,6 @@ INFERENCE_TIME_THRESHOLD = 10 # Seconds
 NUM_SHARDS = 8 # Number of shards (TPU chips).
 LEARNING_RATE = 1.0
 USE_TPU = True
-BATCH_SIZE = 128
 
 lock = threading.Lock()
 
@@ -47,20 +46,6 @@ def metric_fn(labels, logits):
     accuracy = tf.metrics.accuracy(
         labels=labels, predictions=tf.argmax(logits, axis=1))
     return {"accuracy": accuracy}
-
-def eval_input_fn(params):
-    return (eval_data, eval_labels)
-
-def train_input_fn(params):
-    batch_size = params["batch_size"]
-    train_data_dataset = tf.data.Dataset.from_tensor_slices(train_data)
-    train_labels_dataset = tf.data.Dataset.from_tensor_slices(train_labels)
-    single_train = tf.data.Dataset.zip((train_data_dataset, train_labels_dataset))
-    dataset_train = single_train
-    # Create epochs the dumb way: just keep adding shuffled versions of the same data onto the dataset
-    for _ in range(NUM_EPOCHS-1):
-        dataset_train = dataset_train.concatenate(single_train.shuffle(train_data.shape[0]))
-    return dataset_train.shuffle(train_data.shape[0]).apply(tf.contrib.data.batch_and_drop_remainder(batch_size))
 
 def model_fn(features, labels, mode, params):
     del params# Unused
@@ -102,7 +87,7 @@ def model_fn(features, labels, mode, params):
 
 # CREATE AND PREDICT WITH TPUS
 
-def create_estimator():
+def create_estimator(batch_size):
     print("Creating the estimator")
     tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
         TPU_NAME,
@@ -118,19 +103,19 @@ def create_estimator():
     estimator = tf.contrib.tpu.TPUEstimator(
         model_fn=model_fn,
         use_tpu=USE_TPU,
-        train_batch_size=BATCH_SIZE,
-        eval_batch_size=BATCH_SIZE,
-        predict_batch_size=BATCH_SIZE,
+        train_batch_size=batch_size,
+        eval_batch_size=batch_size,
+        predict_batch_size=batch_size,
         params={"data_dir": DATA_DIR},
         config=run_config)
     return estimator
 
-def predict(data, results=None, times=None, job_id=None):
+def predict(data, batch_size, results=None, times=None, job_id=None):
     assert (results is None and times is None and job_id is None) or not (results is None or times is None or job_id is None)
     lock.acquire()
     start_time = time.time()
 
-    estimator = create_estimator()
+    estimator = create_estimator(batch_size)
 
     print("Predicting")
     def predict_input_fn(params):
@@ -144,7 +129,7 @@ def predict(data, results=None, times=None, job_id=None):
     labels = []
     for pred_dict in predictions:
         labels.append(pred_dict['probabilities'])
-    labels = np.array(labels).astype('float32')
+    labels = np.array(labels).astype('float64')
     tf.reset_default_graph()
 
     predict_time = time.time() - start_time

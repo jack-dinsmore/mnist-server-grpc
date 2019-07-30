@@ -38,8 +38,8 @@ class MnistServer(server_tools_pb2_grpc.MnistServerServicer):
 
     def StartJobWait(self, request, context):
         data = np.frombuffer(request.images)
-        data = data.reshape(request.num_images, 28, 28, 1)
-        prediction, predict_time = ml.predict(data)
+        data = data.reshape(-1, 28, 28, 1)
+        prediction, predict_time = ml.predict(data, request.batch_size)
         return server_tools_pb2.PredictionMessage(complete=True, prediction=prediction.tostring(), error='', infer_time=predict_time)
 
     def RequestClientID(self, request, context):
@@ -61,13 +61,13 @@ class MnistServer(server_tools_pb2_grpc.MnistServerServicer):
             return server_tools_pb2.IDMessage(new_id=None, error = "The ID "+str(request.client_id)+" is not a valid client ID")
 
         data = np.frombuffer(request.images)
-        data = data.reshape(request.num_images, 28, 28, 1)
+        data = data.reshape(-1, 28, 28, 1)
 
         job_id = request.client_id + '-' + str(max_client_ids[request.client_id])
         max_client_ids[request.client_id] += 1
 
         results[job_id] = None
-        processes[job_id] = threading.Thread(target=ml.predict, args=(data, results, times, job_id))
+        processes[job_id] = threading.Thread(target=ml.predict, args=(data, request.batch_size, results, times, job_id))
         processes[job_id].start()
         return server_tools_pb2.IDMessage(new_id=job_id, error='')
 

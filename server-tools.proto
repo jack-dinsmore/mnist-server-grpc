@@ -34,7 +34,7 @@ message NullParam {}
 message DataMessage {
   string client_id = 1;
   bytes images = 2;
-  int32 num_images = 3;
+  int32 batch_size = 3;
 }
 
 message PredictionMessage {

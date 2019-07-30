@@ -1,7 +1,15 @@
-Volume testing
+Warnings:
+	RIGHT NOW, THE CHECKPOINT IN THE CLOUD IS BAD!
+	Make sure you PULL FROM THE GITHUB before you start working on the TPU VM server files. They are out of date.
 
-Ultimately, TPUs.
 
-RIGHT NOW, THE CHECKPOINT IN THE CLOUD IS BAD!
+To do:
+	Make it so that you can set the batch size from the client side.
+	Make it so you can send multiple packages for one job.
 
-Make sure you PULL FROM THE GITHUB before you start working on the TPU VM server files. They are out of date.
+	Volume testing
+
+
+Errors:
+	TPU deployment logs this: Encountered 403 Forbidden with reason "forbidden". It seems not to be doing inference.
+ 
