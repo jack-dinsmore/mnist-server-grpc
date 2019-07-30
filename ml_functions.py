@@ -9,15 +9,24 @@ import time, threading
 
 lock = threading.Lock()
 
-def predict(data, results=None, times=None, job_id=None):
+global model, model_loaded
+model = None
+model_loaded = False
+
+def get_model():
+    global model, model_loaded
+    if not model_loaded:
+        print("LOADING")
+        model = load_model("mnist-cnn.h5")
+        model_loaded = True
+    return model
+
+def predict(data, batch_size, results=None, times=None, job_id=None):
     lock.acquire()
     start_time = time.time()
-    print("Pass 2")
-    model = load_model("mnist-cnn.h5")
-    print("Pass 3")
+    model = get_model()
     with tf.device('/gpu:0'):
-        predictions = model.predict(data).astype(float)
-    K.clear_session()
+        predictions = model.predict(data, batch_size=batch_size).astype(float)
     predict_time = time.time() - start_time
     lock.release()
     if results is not None and job_id is not None:
@@ -25,3 +34,6 @@ def predict(data, results=None, times=None, job_id=None):
         times[job_id] = predict_time
     else:
         return predictions, predict_time
+
+def cleanup():
+    K.clear_session()

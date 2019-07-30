@@ -1,3 +1,5 @@
 Volume testing
 
-Ultimately, TPUs.
+Make it so that the server can automatically interpret the size of the data
+
+Redo graph

@@ -41,11 +41,11 @@ def run():
     start_time = time.time()
     if WAIT:
         print("Submitting images and waiting")
-        response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, num_images=NUM_IMAGES, client_id=client_id))
+        response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, client_id=client_id, batch_size=32))
     else:
         print("Submitting images")
         try:
-            idPackage = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, num_images=NUM_IMAGES, client_id=client_id))
+            idPackage = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, client_id=client_id, batch_size=32))
         except:
             print("NUM_IMAGES is too high")
             return

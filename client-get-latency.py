@@ -33,9 +33,9 @@ def run(wait, num_images):
     # Send the data to the server and receive an answer
     start_time = time.time()
     if wait:
-        response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, num_images=num_images, client_id=client_id))
+        response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, client_id=client_id, batch_size=32))
     else:
-        idPackage = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, num_images=num_images, client_id=client_id))
+        idPackage = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, client_id=client_id, batch_size=32))
         response = stub.ProbeJob(idPackage)
         while not response.complete:
             response = stub.ProbeJob(idPackage)
@@ -48,28 +48,52 @@ def run(wait, num_images):
     whole_time = time.time() - start_time
     fraction_not_predicting = (1 - response.infer_time / whole_time)
     channel.close()
-    return fraction_not_predicting
+    return whole_time, fraction_not_predicting / num_images
 
 
 if __name__ == '__main__':
     logging.basicConfig()
     wait = True
     image_number = list(range(1, 10))+list(range(10, 100, 10))
+    wait_whole_times = []
     wait_fraction = []
+    no_wait_whole_times = []
     no_wait_fraction = []
     print("WAITING")
     for num_images in image_number:
         print(num_images)
-        wait_fraction.append(run(True, num_images))
+        whole_time, fraction = run(True, num_images)
+        wait_whole_times.append(whole_time)
+        wait_fraction.append(fraction)
     print("NOT WAITING")
     for num_images in image_number:
         print(num_images)
-        no_wait_fraction.append(run(False, num_images))
+        whole_time, fraction = run(False, num_images)
+        no_wait_whole_times.append(whole_time)
+        no_wait_fraction.append(fraction)
 
-    plt.scatter(image_number, wait_fraction, c='r', marker='o', alpha=0.5)
-    plt.scatter(image_number, no_wait_fraction, c='b', marker='s', alpha=0.5)
-    plt.legend(['Wait', 'No wait'])
-    plt.xlabel('Images sent')
-    plt.xscale('log')
-    plt.ylabel('Fraction time spent not predicting')
-    plt.show()
+    while True:
+        i = input()
+        if i == '':
+            break
+        plt.scatter(image_number, wait_fraction, c='r', marker='o', alpha=0.5)
+        plt.scatter(image_number, no_wait_fraction, c='b', marker='s', alpha=0.5)
+        plt.legend(['Wait', 'No wait'])
+        plt.xlabel('Images sent')
+        plt.xscale('log')
+        plt.axis([1, 100, 0, float(i)])
+        plt.ylabel('Fraction time spent not predicting per image')
+        plt.show()
+
+    while True:
+        i = input()
+        if i == '':
+            break
+        plt.scatter(image_number, wait_whole_times, c='r', marker='o', alpha=0.5)
+        plt.scatter(image_number, no_wait_whole_times, c='b', marker='s', alpha=0.5)
+        plt.legend(['Wait', 'No wait'])
+        plt.xlabel('Images sent')
+        plt.xscale('log')
+        plt.axis([1, 100, 0, float(i)])
+        plt.ylabel('Total wait time (s)')
+        plt.show()

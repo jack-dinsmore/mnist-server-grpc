@@ -24,6 +24,11 @@ Specifically, this code will launch a gRPC server encoded in *server.py* on a Go
 
 
 # How to deploy the server
+## Deploying on your local machine
+
+Simply run *server.py*, change the text of *IP.txt* to `localhost`, and run any client you want.
+
+## Deploying on a Google Kubernetes Cluster
 **Requirements:** You must have the `gcloud` command installed on your system. To do this, you may use (Google's tutorial) on how to install `gcloud` on your personal computer, or you can use the google cloud shell which you can get by clicking the **>_** icon in the upper right corner of the google cloud console. This should have `gcloud` installed. If you are using the cloud console, you must clone this repository to your system there.
 1. Create a Google Cloud Kubernetes Cluster
     1. Open the menu in the upper left corner of the Google Cloud console and select **Kubernetes Engine>Clusters**. Then select **Create Cluster**. 

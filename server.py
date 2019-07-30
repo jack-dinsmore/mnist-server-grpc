@@ -34,12 +34,17 @@ results = {}
 times = {}
 
 
+def verify_request(request):
+    return (request.client_id in max_client_ids) and request.batch_size > 0
+
 class MnistServer(server_tools_pb2_grpc.MnistServerServicer):
 
     def StartJobWait(self, request, context):
+        if not verify_request(request):
+            return server_tools_pb2.PredictionMessage(complete=False, prediction=b'', error='Invalid data package', infer_time=0)
         data = np.frombuffer(request.images)
-        data = data.reshape(request.num_images, 28, 28, 1)
-        prediction, predict_time = ml.predict(data)
+        data = data.reshape(-1, 28, 28, 1)
+        prediction, predict_time = ml.predict(data, request.batch_size)
         return server_tools_pb2.PredictionMessage(complete=True, prediction=prediction.tostring(), error='', infer_time=predict_time)
 
     def RequestClientID(self, request, context):
@@ -56,18 +61,21 @@ class MnistServer(server_tools_pb2_grpc.MnistServerServicer):
         return server_tools_pb2.IDMessage(new_id=client_id, error = '')
 
     def StartJobNoWait(self, request, context):
+        if not verify_request(request):
+            return server_tools_pb2.PredictionMessage(complete=False, prediction=b'', error='Invalid data package', infer_time=0)
+
         global processes, results, max_client_ids
         if request.client_id not in max_client_ids:
             return server_tools_pb2.IDMessage(new_id=None, error = "The ID "+str(request.client_id)+" is not a valid client ID")
         
         data = np.frombuffer(request.images)
-        data = data.reshape(request.num_images, 28, 28, 1)
+        data = data.reshape(-1, 28, 28, 1)
 
         job_id = request.client_id + '-' + str(max_client_ids[request.client_id])
         max_client_ids[request.client_id] += 1
 
         results[job_id] = None
-        processes[job_id] = threading.Thread(target=ml.predict, args=(data, results, times, job_id))
+        processes[job_id] = threading.Thread(target=ml.predict, args=(data, request.batch_size, results, times, job_id))
         processes[job_id].start()
         return server_tools_pb2.IDMessage(new_id=job_id, error='')
     
@@ -91,10 +99,12 @@ def serve():
     server_tools_pb2_grpc.add_MnistServerServicer_to_server(MnistServer(), server)
     server.add_insecure_port('[::]:'+PORT)
     server.start()
+    print("READY")
     try:
         while True:
             time.sleep(_ONE_DAY_IN_SECONDS)
     except KeyboardInterrupt:
+        ml.cleanup()
         server.stop(0)
 
 

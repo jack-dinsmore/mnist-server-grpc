@@ -40,7 +40,7 @@ def run():
     #Pass the data to the server
     print("Submitting image")
     start_time=time.time()
-    id_package = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, num_images=1, client_id = client_id))
+    id_package = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, client_id = client_id, batch_size=32))
     response = stub.ProbeJob(id_package)
 
     # Wait for the server to finish prediction
