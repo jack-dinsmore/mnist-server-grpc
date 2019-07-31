@@ -24,7 +24,14 @@ Specifically, this code will launch a gRPC server encoded in *server.py* on a Go
 
 
 # How to deploy the server
+## Deploying on your local machine
+
+Simply run *server.py*, change the text of *IP.txt* to `localhost`, and run any client you want.
+
+## Deploying on a Google Kubernetes Cluster
 **Requirements:** You must have the `gcloud` command installed on your system. To do this, you may use (Google's tutorial) on how to install `gcloud` on your personal computer, or you can use the google cloud shell which you can get by clicking the **>_** icon in the upper right corner of the google cloud console. This should have `gcloud` installed. If you are using the cloud console, you must clone this repository to your system there.
+0. Set up a project
+    1. Search for google cloud, open the link, and click **Console** in the upper right corner. Click **Select a project** in the upper left corner and choose **HarrisGroup** or your own group's project number from the dialog box. If you do not have a project there, request to be added to one by your project supervisor. 
 1. Create a Google Cloud Kubernetes Cluster
     1. Open the menu in the upper left corner of the Google Cloud console and select **Kubernetes Engine>Clusters**. Then select **Create Cluster**. 
     2. Name the cluster whatever you want and change the region if you wish.
@@ -34,7 +41,7 @@ Specifically, this code will launch a gRPC server encoded in *server.py* on a Go
 2. Containerize this repository with docker
     1. Clone this repository into your local computer or your google cloud filesystem.
     2. Make any changes to the server or docker files you wish to make. If you do change the files, please read the following section on how to avoid errors as you change the server code.
-    3. Run the shell command `gcloud builds submit --tag gcr.io/harrisgroup-223921/<<<NAME>>> .` where `<<<NAME>>>` is a name you pick for the container. This does not have to be the same name as the cluster that you created in the last step.
+    3. Run the shell command `gcloud builds submit --tag gcr.io/harrisgroup-223921/<<<NAME>>> <<<DIR>>>` where `<<<NAME>>>` is a name you pick for the container and `<<<DIR>>>` is the local directory of your server files: in this case, the place where you cloned the repository. `<<<NAME>>>` does not have to be the same name as the cluster that you created in the last step.
 3. Deploy the server
     1. Click on the cluster you created in the first step. In the ribbon at the top, click **+ DEPLOY**. Keep **Existing Container Image** selected and click **SELECT** to the right of the box beneath. From the menu that pops up, select the container you created in step two; it should show up as `<<<NAME>>>`.
     2. Click Continue.
@@ -66,7 +73,13 @@ Deployment errors are listed at the top of the deployment page
 - **Unschedulable**: this error can occur in deployments when *Dockerfile* has a typo in it, especially the `CMD` line. Sometimes it also happens if your cluster was set up incorrectly, so deleting and recreating your cluster may resolve the problem if you're sure *Dockerfile* is correct. 
 - **Does not have minimum availability**: this is a placeholder error. It occurs when your cluster runs out of storage, but it also occurs in situations that have nothing to do with storage. For example, if your server has a bug in it, the pods will throw **CrashLoopBackOff** and your deployment will throw **Does not have minimum availability**. So check your pod logs for tracebacks before changing the storage size on your cluster.
 - **Insufficient cpu**: another placeholder error. This error often accompanies **Unschedulable**, and once again, the problem often has nothing to do with the amount of processing power available.
+- **Deployment Failed**: this can happen for many reasons, but it can happen if you are trying to run too many services on one cluster, so there are no available pods. I believe you may only run one service per pod. To remove the error, delete some of the other services (and possibly deployments) on the cluster and redeploy. The error can also happen if you give your deployment the name already occupied by another deployment.
 
 ### Pod errors
-Pod errors are listed next to the pod name on the deployment page. Some errors can be cleared simply by refreshing the deployment page.
-- **CrashLoopBackOff**: this error occurs in pods when the server cannot be initialized. To read the error, click on one of the pods which shows the **CrashLoopBackOff** error, go to the **Logs** page, and click on **Container Logs**. The traceback should be there. If not, the issue is probably in the *Dockerfile* which you used to compile your container image; one of the commands may be misspelled or it may throw an error when executed. In my experience, the logs only show python errors generated when running the server, not bash errors generated when downloading the image.
+Pod errors are listed next to the pod name on the deployment page.
+- **CrashLoopBackOff**: this error occurs in pods when the server cannot be initialized. To read the error, click on one of the pods which shows the **CrashLoopBackOff** error, go to the **Logs** page, and click on **Container Logs**. The traceback should be there.
+
+### Runtime errors
+Sometimes the server simply will not respond to client requests. In this case, it may have crashed. To read the error message, open your service page (the one with the IP "endpoint" on it), click on one of the pods in the **Serving pods** table at the bottom, open the **Logs** page of the pod, click on **Container Logs**, and read the traceback if there is one. If you click on a pod and you are led to a page which says "Resource not found," try a different pod.
+
+After you correct the error, repeat steps 2 and above from the "Deploying on a Google Kubernetes Cluster" section in this readme.

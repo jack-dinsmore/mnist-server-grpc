@@ -18,7 +18,8 @@ WAIT = False
 # Change this parameter depending on how many images you want to send at once.
 # There is an upper limit (668 on my machine) where the size of the package 
 # becomes too great and the client will throw an error.
-NUM_IMAGES = 668
+NUM_IMAGES = 200
+BATCH_SIZE = 32
 
 def run():
     # Get a handle to the server
@@ -41,14 +42,14 @@ def run():
     start_time = time.time()
     if WAIT:
         print("Submitting images and waiting")
-        response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, num_images=NUM_IMAGES, client_id=client_id))
+        response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, batch_size=BATCH_SIZE, client_id=client_id))
     else:
         print("Submitting images")
-        try:
-            idPackage = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, num_images=NUM_IMAGES, client_id=client_id))
-        except:
-            print("NUM_IMAGES is too high")
-            return
+        #try:
+        idPackage = stub.StartJobNoWait(server_tools_pb2.DataMessage(images=data, batch_size=BATCH_SIZE, client_id=client_id))
+        #except:
+            #print("NUM_IMAGES is too high")
+            #return
         response = stub.ProbeJob(idPackage)
         print("Checking in with server")
         while not response.complete:

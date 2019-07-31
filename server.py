@@ -13,10 +13,9 @@
 # limitations under the License.
 
 from concurrent import futures
-import logging, grpc, time
+import logging, grpc, time, threading, sys
 import numpy as np
 import ml_functions as ml
-import threading
 
 import server_tools_pb2
 import server_tools_pb2_grpc
@@ -91,7 +90,8 @@ def serve():
     server_tools_pb2_grpc.add_MnistServerServicer_to_server(MnistServer(), server)
     server.add_insecure_port('[::]:'+PORT)
     server.start()
-    print("READY")
+    print("READY", file=sys.stderr)
+    print("PRINT TEST")
     try:
         while True:
             time.sleep(_ONE_DAY_IN_SECONDS)

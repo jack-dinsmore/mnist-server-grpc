@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='helloworld',
   syntax='proto3',
   serialized_options=_b('\n\033io.grpc.examples.helloworldB\017HelloWorldProtoP\001\242\002\003HLW'),
-  serialized_pb=_b('\n\x12server-tools.proto\x12\nhelloworld\"\x0b\n\tNullParam\"D\n\x0b\x44\x61taMessage\x12\x11\n\tclient_id\x18\x01 \x01(\t\x12\x0e\n\x06images\x18\x02 \x01(\x0c\x12\x12\n\nnum_images\x18\x03 \x01(\x05\"\\\n\x11PredictionMessage\x12\x10\n\x08\x63omplete\x18\x01 \x01(\x08\x12\x12\n\nprediction\x18\x02 \x01(\x0c\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x12\x12\n\ninfer_time\x18\x04 \x01(\x02\"*\n\tIDMessage\x12\x0e\n\x06new_id\x18\x01 \x01(\t\x12\r\n\x05\x65rror\x18\x02 \x01(\t2\xa2\x02\n\x0bMnistServer\x12H\n\x0cStartJobWait\x12\x17.helloworld.DataMessage\x1a\x1d.helloworld.PredictionMessage\"\x00\x12\x42\n\x0eStartJobNoWait\x12\x17.helloworld.DataMessage\x1a\x15.helloworld.IDMessage\"\x00\x12\x42\n\x08ProbeJob\x12\x15.helloworld.IDMessage\x1a\x1d.helloworld.PredictionMessage\"\x00\x12\x41\n\x0fRequestClientID\x12\x15.helloworld.NullParam\x1a\x15.helloworld.IDMessage\"\x00\x42\x36\n\x1bio.grpc.examples.helloworldB\x0fHelloWorldProtoP\x01\xa2\x02\x03HLWb\x06proto3')
+  serialized_pb=_b('\n\x12server-tools.proto\x12\nhelloworld\"\x0b\n\tNullParam\"D\n\x0b\x44\x61taMessage\x12\x11\n\tclient_id\x18\x01 \x01(\t\x12\x0e\n\x06images\x18\x02 \x01(\x0c\x12\x12\n\nbatch_size\x18\x03 \x01(\x05\"\\\n\x11PredictionMessage\x12\x10\n\x08\x63omplete\x18\x01 \x01(\x08\x12\x12\n\nprediction\x18\x02 \x01(\x0c\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x12\x12\n\ninfer_time\x18\x04 \x01(\x02\"*\n\tIDMessage\x12\x0e\n\x06new_id\x18\x01 \x01(\t\x12\r\n\x05\x65rror\x18\x02 \x01(\t2\xa2\x02\n\x0bMnistServer\x12H\n\x0cStartJobWait\x12\x17.helloworld.DataMessage\x1a\x1d.helloworld.PredictionMessage\"\x00\x12\x42\n\x0eStartJobNoWait\x12\x17.helloworld.DataMessage\x1a\x15.helloworld.IDMessage\"\x00\x12\x42\n\x08ProbeJob\x12\x15.helloworld.IDMessage\x1a\x1d.helloworld.PredictionMessage\"\x00\x12\x41\n\x0fRequestClientID\x12\x15.helloworld.NullParam\x1a\x15.helloworld.IDMessage\"\x00\x42\x36\n\x1bio.grpc.examples.helloworldB\x0fHelloWorldProtoP\x01\xa2\x02\x03HLWb\x06proto3')
 )
 
 
@@ -72,7 +72,7 @@ _DATAMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='num_images', full_name='helloworld.DataMessage.num_images', index=2,
+      name='batch_size', full_name='helloworld.DataMessage.batch_size', index=2,
       number=3, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
