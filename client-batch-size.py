@@ -30,27 +30,31 @@ def run():
     client_id = response.new_id
 
     batch_sizes = list(range(1, 10)) + list(range(10, 100, 10))
-    ideal_time = []
-    real_time = []
+    ideal_time = [0]*len(batch_sizes)
+    real_time = [0]*len(batch_sizes)
+    print(client_id)
 
-    for batch_size in batch_sizes:
-        print(batch_size)
-        real_time_now = 0
-        ideal_time_now = 0
-        for i in range(NUM_TRIALS):
+    for i in range(NUM_TRIALS):
+        print("\nTrial", i)
+        j = 0
+        for batch_size in batch_sizes:
+            print(j, end=',')
             data = np.random.rand(NUM_IMAGES, 28, 28, 1).tostring()
             start_time=time.time()
-            response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, batch_size=batch_size, client_id = client_id))
+            response = stub.StartJobWait(server_tools_pb2.DataMessage(images=data, batch_size=batch_size, client_id=client_id))
             original_array = np.frombuffer(response.prediction).reshape(NUM_IMAGES, 10)
-            real_time_now += time.time() - start_time
-            ideal_time_now += response.infer_time
-        ideal_time.append(ideal_time_now / NUM_IMAGES / NUM_TRIALS*1000)
-        real_time.append(real_time_now / NUM_IMAGES / NUM_TRIALS*1000)
+            ideal_time[j] += response.infer_time
+            real_time[j] += time.time() - start_time
+            j += 1
+    
+    for i in range(len(batch_sizes)):
+        ideal_time[i] /= NUM_IMAGES * NUM_TRIALS / 1000 # Convert to ms
+        real_time[i] /= NUM_IMAGES * NUM_TRIALS / 1000 # Convert to ms
 
     i = input()
     while i != '':
-        plt.plot(batch_sizes, real_time, 'r')#c='b', marker='o', alpha=0.5)
-        plt.plot(batch_sizes, ideal_time, 'b')#c='r', marker='s', alpha=0.5)
+        plt.plot(batch_sizes, real_time, 'r')
+        plt.plot(batch_sizes, ideal_time, 'b')
 
         plt.legend(['Actual', 'Ideal'])
         plt.title('Inference time vs batch size, 200 images')
